@@ -7,7 +7,8 @@ const init = {
     all: () => true,
     active: todo => !todo.completed,
     completed: todo => todo.completed,
-  }
+  },
+  editIndex: null
 }
 
 const actions = {
@@ -29,6 +30,31 @@ const actions = {
   DESTROY({ todos }, index) {
     todos.splice(index, 1)
     storage.set(todos)
+  },
+  SWITCH(state, filter) {
+    state.filter = filter
+  },
+  CLEAR_COMPLETED(state) {
+    state.todos = state.todos.filter(state.filters.active)
+    storage.set(state.todos)
+  },
+  START_EDIT(state, index) {
+    state.editIndex = index
+  },
+  END_EDIT(state, title) {
+    if (state.editIndex !== null) {
+      if (title) {
+        state.todos[state.editIndex].title = title
+        state.editIndex = null
+        storage.set(state.todos)
+      } else {
+        this.DESTROY(state, state.editIndex)
+      }
+      state.editIndex = null
+    }
+  },
+  CANCEL_EDIT(state) {
+    state.editIndex = null
   }
 }
 
